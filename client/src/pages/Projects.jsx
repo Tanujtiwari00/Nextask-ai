@@ -8,7 +8,7 @@ export default function Projects() {
   const [name, setName] = useState("")
 
   const fetchProjects = async () => {
-    const res = await axios.get(`nextask-ai-production.up.railway.app/projects?email=${user.email}`)
+    const res = await axios.get(`https://nextask-ai-production.up.railway.app/projects?email=${user.email}`)
     setProjects(res.data)
   }
 
@@ -19,7 +19,7 @@ export default function Projects() {
   const addProject = async () => {
     if (!name) return
 
-    await await axios.post("nextask-ai-production.up.railway.app/projects", {
+    await await axios.post("https://nextask-ai-production.up.railway.app/projects", {
   name,
   owner_email: user.email
 })

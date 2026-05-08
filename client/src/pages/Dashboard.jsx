@@ -18,11 +18,11 @@ export default function Dashboard() {
       if (!user?.email) return
 
       const taskRes = await axios.get(
-        `nextask-ai-production.up.railway.app/tasks?email=${user.email}`
+        `https://nextask-ai-production.up.railway.app/tasks?email=${user.email}`
       )
 
       const projectRes = await axios.get(
-        `nextask-ai-production.up.railway.app/projects?email=${user.email}`
+        `https://nextask-ai-production.up.railway.app/projects?email=${user.email}`
       )
 
       setTasks(taskRes.data)

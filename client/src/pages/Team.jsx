@@ -12,7 +12,7 @@ export default function Team() {
       if (!user?.email) return
 
       const res = await axios.get(
-        `nextask-ai-production.up.railway.app/team?email=${user.email}`
+        `https://nextask-ai-production.up.railway.app/team?email=${user.email}`
       )
 
       setMembers(res.data)
@@ -29,7 +29,7 @@ export default function Team() {
     try {
       if (!name || !user?.email) return
 
-      await axios.post("nextask-ai-production.up.railway.app/team", {
+      await axios.post("https://nextask-ai-production.up.railway.app/team", {
         name,
         role: "Member",
         owner_email: user.email

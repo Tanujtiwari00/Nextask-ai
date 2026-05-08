@@ -18,7 +18,7 @@ export default function Signup() {
     try {
 
       await axios.post(
-        "nextask-ai-production.up.railway.app/signup",
+        "https://nextask-ai-production.up.railway.app/signup",
         form
       )
 

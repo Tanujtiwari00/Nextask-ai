@@ -8,7 +8,7 @@ export default function Tasks() {
   const [title, setTitle] = useState("")
 
   const fetchTasks = async () => {
-    const res = await axios.get(`nextask-ai-production.up.railway.app/tasks?email=${user.email}`)
+    const res = await axios.get(`https://nextask-ai-production.up.railway.app/tasks?email=${user.email}`)
     setTasks(res.data)
   }
 
@@ -19,7 +19,7 @@ export default function Tasks() {
   const addTask = async () => {
     if (!title) return
 
-   await axios.post("nextask-ai-production.up.railway.app/tasks", {
+   await axios.post("https://nextask-ai-production.up.railway.app/tasks", {
   title,
   status: "Pending",
   owner_email: user.email
@@ -30,7 +30,7 @@ export default function Tasks() {
   }
 
   const deleteTask = async (id) => {
-    await axios.delete(`nextask-ai-production.up.railway.app/tasks/${id}`)
+    await axios.delete(`https://nextask-ai-production.up.railway.app/tasks/${id}`)
     fetchTasks()
   }
 
