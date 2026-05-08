@@ -12,13 +12,23 @@ export default function Login() {
   })
 
   const handleLogin = async () => {
+  try {
+    const res = await axios.post(
+      "https://nextask-ai-production.up.railway.app/login",
+      {
+        email: form.email.trim(),
+        password: form.password.trim()
+      }
+    )
 
-    try {
-
-      const res = await axios.post(
-        "https://nextask-ai-production.up.railway.app/login",
-        form
-      )
+    localStorage.clear()
+    localStorage.setItem("user", JSON.stringify(res.data.user))
+    window.location.href = "/"
+  } catch (err) {
+    console.log(err.response?.data || err.message)
+    alert(err.response?.data?.message || "Invalid login")
+  }
+}
 
       localStorage.setItem(
         "user",
