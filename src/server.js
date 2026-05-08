@@ -36,20 +36,42 @@ CREATE TABLE IF NOT EXISTS team (
 );
 `)
 
+try {
+  db.prepare("ALTER TABLE tasks ADD COLUMN owner_email TEXT").run()
+} catch {}
+
+try {
+  db.prepare("ALTER TABLE projects ADD COLUMN owner_email TEXT").run()
+} catch {}
+
+try {
+  db.prepare("ALTER TABLE team ADD COLUMN owner_email TEXT").run()
+} catch {}
+
+// HEALTHCHECK
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "NexTask AI backend is healthy"
+  })
+})
+
 // SIGNUP
 app.post("/signup", (req, res) => {
   const { name, email, password, role } = req.body
 
   try {
-    const stmt = db.prepare(
+    db.prepare(
       "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)"
-    )
+    ).run(name, email, password, role || "Admin")
 
-    stmt.run(name, email, password, role || "Member")
-
-    res.json({ message: "Signup successful" })
-  } catch (err) {
-    res.status(400).json({ message: "User already exists" })
+    res.json({
+      message: "Signup successful"
+    })
+  } catch {
+    res.status(400).json({
+      message: "User already exists"
+    })
   }
 })
 
@@ -62,78 +84,111 @@ app.post("/login", (req, res) => {
     .get(email, password)
 
   if (!user) {
-    return res.status(401).json({ message: "Invalid credentials" })
+    return res.status(401).json({
+      message: "Invalid credentials"
+    })
   }
 
-  res.json({ message: "Login successful", user })
+  res.json({
+    message: "Login successful",
+    user
+  })
 })
 
 // TASKS
 app.get("/tasks", (req, res) => {
-  const tasks = db.prepare("SELECT * FROM tasks ORDER BY id DESC").all()
+  const { email } = req.query
+
+  const tasks = db
+    .prepare("SELECT * FROM tasks WHERE owner_email = ? ORDER BY id DESC")
+    .all(email)
+
   res.json(tasks)
 })
 
 app.post("/tasks", (req, res) => {
-  const { title, status } = req.body
+  const { title, status, owner_email } = req.body
 
   const result = db
-    .prepare("INSERT INTO tasks (title, status) VALUES (?, ?)")
-    .run(title, status || "Pending")
+    .prepare("INSERT INTO tasks (title, status, owner_email) VALUES (?, ?, ?)")
+    .run(title, status || "Pending", owner_email)
 
-  res.json({ id: result.lastInsertRowid, title, status: status || "Pending" })
+  res.json({
+    id: result.lastInsertRowid,
+    title,
+    status: status || "Pending",
+    owner_email
+  })
 })
 
 app.delete("/tasks/:id", (req, res) => {
   db.prepare("DELETE FROM tasks WHERE id = ?").run(req.params.id)
-  res.json({ message: "Task deleted" })
+
+  res.json({
+    message: "Task deleted"
+  })
 })
 
 // PROJECTS
 app.get("/projects", (req, res) => {
-  const projects = db.prepare("SELECT * FROM projects ORDER BY id DESC").all()
+  const { email } = req.query
+
+  const projects = db
+    .prepare("SELECT * FROM projects WHERE owner_email = ? ORDER BY id DESC")
+    .all(email)
+
   res.json(projects)
 })
 
 app.post("/projects", (req, res) => {
-  const { name } = req.body
+  const { name, owner_email } = req.body
 
   const result = db
-    .prepare("INSERT INTO projects (name, status) VALUES (?, ?)")
-    .run(name, "Active")
+    .prepare("INSERT INTO projects (name, status, owner_email) VALUES (?, ?, ?)")
+    .run(name, "Active", owner_email)
 
-  res.json({ id: result.lastInsertRowid, name, status: "Active" })
+  res.json({
+    id: result.lastInsertRowid,
+    name,
+    status: "Active",
+    owner_email
+  })
 })
 
 // TEAM
 app.get("/team", (req, res) => {
-  const team = db.prepare("SELECT * FROM team ORDER BY id DESC").all()
+  const { email } = req.query
+
+  const team = db
+    .prepare("SELECT * FROM team WHERE owner_email = ? ORDER BY id DESC")
+    .all(email)
+
   res.json(team)
 })
 
 app.post("/team", (req, res) => {
-  const { name, role } = req.body
+  const { name, role, owner_email } = req.body
 
   const result = db
-    .prepare("INSERT INTO team (name, role) VALUES (?, ?)")
-    .run(name, role || "Member")
+    .prepare("INSERT INTO team (name, role, owner_email) VALUES (?, ?, ?)")
+    .run(name, role || "Member", owner_email)
 
-  res.json({ id: result.lastInsertRowid, name, role: role || "Member" })
+  res.json({
+    id: result.lastInsertRowid,
+    name,
+    role: role || "Member",
+    owner_email
+  })
 })
 
 app.get("/", (req, res) => {
-  res.json({ message: "NexTask AI backend is running" })
+  res.json({
+    message: "NexTask AI backend is running"
+  })
 })
 
 const PORT = process.env.PORT || 3000
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "NexTask AI backend is healthy"
-  })
-  
-})
 app.listen(PORT, () => {
   console.log(`NexTask AI backend running on port ${PORT}`)
 })
