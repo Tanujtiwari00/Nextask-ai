@@ -16,7 +16,7 @@ export default function Login() {
     try {
 
       const res = await axios.post(
-        "nextask-ai-production.up.railway.app/login",
+        "https://nextask-ai-production.up.railway.app/login",
         form
       )
 
